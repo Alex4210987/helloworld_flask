@@ -53,6 +53,11 @@ class User(db.Model, UserMixin):
     def validate_password(self, password):  # 用于验证密码的方法，接受密码作为参数
         return check_password_hash(self.password_hash, password)  # 返回布尔值
 
+@app.errorhandler(404)  # 传入要处理的错误代码
+def page_not_found(e):  # 接受异常对象作为参数
+    user = User.query.first()
+    return render_template('404.html', user=user), 404  # 返回模板和状态码
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':  # 判断是否是 POST 请求
@@ -134,10 +139,6 @@ def forge():
     db.session.commit()
     click.echo('Done.')
 
-@app.errorhandler(404)  # 传入要处理的错误代码
-def page_not_found(e):  # 接受异常对象作为参数
-    user = User.query.first()
-    return render_template('404.html', user=user), 404  # 返回模板和状态码
 
 @app.route('/movie/edit/<int:movie_id>', methods=['GET', 'POST'])
 @login_required  # 登录保护
